@@ -1,33 +1,47 @@
 import React, { useState } from 'react';
+import { postData } from '../api/index';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+    const [user, setUser] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!email || !password) {
-      setError('Veuillez remplir tous les champs.');
-      return;
-    }
-    setError('');
-    
-    // Appel api
-  };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!user || !password) {
+        setError('Veuillez remplir tous les champs.');
+        return;
+        }
+        setError('');
+        
+        try {
+            const data = await postData("/auth/signIn", { user, password });
+            if (data.access_token === true) {
+                throw new Error("Le token d'accès est invalide.");
+            }
+            localStorage.setItem("token", data.access_token);
+            navigate("/");
+        }
+        catch (err) {
+            const errorMessage = err.response?.data?.message || err.message || "Une erreur est survenue.";
+            setError(errorMessage);
+            console.error("Erreur lors de la connexion:", err);
+        }
+    };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-green-900 via-green-700 to-green-900">
-      <div className="bg-white/90 rounded-xl shadow-2xl p-10 flex flex-col items-center max-w-md w-full">
+      <div className="bg-white/90 rounded-xl shadow-2xl px-10 py-5 flex flex-col items-center max-w-md w-full">
         <h1 className="text-3xl font-extrabold text-green-800 mb-6 drop-shadow-lg">Connexion</h1>
         <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
           <input
-            type="email"
-            placeholder="Email"
+            type="text"
+            placeholder="Identifiant"
             className="px-4 py-3 rounded-lg border-2 border-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-lg"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            autoComplete="email"
+            value={user}
+            onChange={e => setUser(e.target.value)}
           />
           <input
             type="password"
@@ -45,6 +59,7 @@ function Login() {
             Se connecter
           </button>
         </form>
+        <a className="mt-4 hover:text-gray-600 hover:cursor-pointer" onClick={() => navigate('/register')}>Pas encore de compte ?</a>
       </div>
     </div>
   );
