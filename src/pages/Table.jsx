@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { fetchData, getTokenPayload } from '../api';
 
 function Table() {
@@ -11,6 +11,7 @@ function Table() {
   const [message, setMessage] = useState('');
   const [actionAmount, setActionAmount] = useState('');
   const playerId = getTokenPayload()?.sub || getTokenPayload()?.userId;
+  const navigate = useNavigate();
 
   // Rejoint la table puis charge les infos
   const joinAndFetch = async () => {
@@ -23,7 +24,7 @@ function Table() {
       setTable(data);
       console.log(data);
       const actions = await fetchData(`/tables/${id}/actions`);
-      console.log(actions);
+      console.log("actions", actions);
       setPossibleActions(actions);
       setLoading(false);
     } catch (err) {
@@ -41,6 +42,7 @@ function Table() {
   const refreshTable = async () => {
     try {
       const data = await fetchData(`/tables/${id}`);
+      console.log('table', data);
       setTable(data);
       const actions = await fetchData(`/tables/${id}/actions`);
       console.log(actions);
@@ -71,6 +73,22 @@ function Table() {
     }
   };
 
+  const handleLeave = async () => {
+    setError('');
+    setMessage('');
+    try {
+      const res = await fetchData(`/tables/${id}/leave`);
+      navigate('/');
+      if (typeof res === 'string') {
+        setMessage(res);
+        return;
+      }
+    }
+    catch (err) {
+      setError("Erreur lors du départ de la table.", err);
+    }
+  }
+
   if (loading) {
     return <div className="flex justify-center items-center min-h-screen bg-green-900 text-white">Chargement de la table...</div>;
   }
@@ -89,7 +107,16 @@ function Table() {
       backgroundColor: '#bfa98e',
     }}>
       <div className="w-full h-full flex-1 justify-between flex flex-col gap-6">
-        <h2 className="text-2xl font-bold text-green-900 mb-2 text-center">{table.name || `Table #${table.id}`}</h2>
+        <div className="flex justify-start items-center mb-2">
+          <button
+            onClick={() => handleLeave()}
+            className="flex items-center gap-2 text-red-700 hover:text-red-900 font-bold text-lg px-3 py-1 rounded transition-colors hover:cursor-pointer"
+            title="Quitter la table"
+          >
+            <span className="text-2xl">&times;</span>
+            <span>Quitter</span>
+          </button>
+        </div>
         <div className="flex flex-col md:flex-row gap-6">
           {/* Zone table/pot/river */}
           <div className="flex-1 flex flex-col items-center gap-4">
@@ -178,30 +205,61 @@ function Table() {
             </div>
           </div>
         </div>
+        {message && <div className="mt-4 text-center text-lg text-white font-semibold">{message}</div>}
         {/* Actions */}
         <div className="mt-6 flex justify-between items-center gap-2">
-            <div>
-              <input placeholder='Montant' type="number" min="1" className="border rounded px-2 py-1 w-40" value={actionAmount} onChange={e => setActionAmount(e.target.value)} />
-            </div>
           <div className="flex flex-wrap gap-3">
-            {Array.isArray(possibleActions) && possibleActions.length > 0 ? (
+            {Array.isArray(possibleActions) && possibleActions.length > 0 && (
               possibleActions.map(action => (
                 action === 'raise' ? (
                   <form key={action} onSubmit={e => { e.preventDefault(); handleAction('raise'); }} className="flex gap-2 items-center">
-                    <input type="number" min="1" className="border rounded px-2 py-1 w-20" placeholder="Montant" value={actionAmount} onChange={e => setActionAmount(e.target.value)} />
-                    <button type="submit" className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg border-2 border-yellow-700">Relancer</button>
+                    <input type="number" min="1" className="border rounded px-2 py-1 w-20 bg-white" placeholder="Montant" value={actionAmount} onChange={e => setActionAmount(e.target.value)} />
+                    <button type="submit" className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg border-2 border-yellow-700 hover:cursor-pointer">Relancer</button>
                   </form>
-                ) : (
-                  <button key={action} onClick={() => handleAction(action)} className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 px-4 rounded-lg border-2 border-green-900 capitalize">
-                    {action === 'fold' ? 'Se coucher' : action === 'call' ? 'Suivre' : action === 'check' ? 'Checker' : action === 'leave' ? 'Quitter' : action}
-                  </button>
-                )
+                ) : null // On ne gère plus les autres boutons ici
               ))
-            ) : (
-              <span className="text-gray-500">Aucune action possible</span>
             )}
           </div>
-          {message && <div className="mt-4 text-center text-lg text-blue-700 font-semibold">{message}</div>}
+          {/* Boutons fixes à droite */}
+          <div className="flex gap-2 ml-4">
+            {possibleActions.includes('small_blind') && (
+              <button
+                onClick={() => handleAction('small_blind')}
+                className="font-bold py-2 px-4 rounded-lg border-2 bg-blue-700 hover:bg-blue-800 text-white border-blue-900 capitalize"
+              >
+                Petite blinde
+              </button>
+            )}
+            {possibleActions.includes('big_blind') && (
+              <button
+                onClick={() => handleAction('big_blind')}
+                className="font-bold py-2 px-4 rounded-lg border-2 bg-purple-700 hover:bg-purple-800 text-white border-purple-900 capitalize"
+              >
+                Grosse blinde
+              </button>
+            )}
+            <button
+              onClick={() => possibleActions.includes('call') && handleAction('call')}
+              disabled={!possibleActions.includes('call')}
+              className={`font-bold py-2 px-4 rounded-lg border-2 capitalize ${possibleActions.includes('call') ? 'bg-green-700 hover:bg-green-800 text-white border-green-900 hover:cursor-pointer' : 'bg-gray-300 text-gray-500 border-gray-400 cursor-not-allowed'}`}
+            >
+              Suivre
+            </button>
+            <button
+              onClick={() => possibleActions.includes('check') && handleAction('check')}
+              disabled={!possibleActions.includes('check')}
+              className={`font-bold py-2 px-4 rounded-lg border-2 capitalize ${possibleActions.includes('check') ? 'bg-green-700 hover:bg-green-800 text-white border-green-900 hover:cursor-pointer' : 'bg-gray-300 text-gray-500 border-gray-400 cursor-not-allowed'}`}
+            >
+              Checker
+            </button>
+            <button
+              onClick={() => possibleActions.includes('fold') && handleAction('fold')}
+              disabled={!possibleActions.includes('fold')}
+              className={`font-bold py-2 px-4 rounded-lg border-2 capitalize ${possibleActions.includes('fold') ? 'bg-green-700 hover:bg-green-800 text-white border-green-900 hover:cursor-pointer' : 'bg-gray-300 text-gray-500 border-gray-400 cursor-not-allowed'}`}
+            >
+              Se coucher
+            </button>
+          </div>
         </div>
       </div>
     </div>

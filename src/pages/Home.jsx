@@ -11,10 +11,6 @@ function Home() {
   const [loginState, setLoginState] = useState("login");
 
   useEffect(() => {
-    console.log("player", loginState);
-  }, [loginState]);
-
-  useEffect(() => {
     try {
       fetchData("/tables")
         .then((res) => {
