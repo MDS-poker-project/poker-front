@@ -1,5 +1,7 @@
 import { fetchData } from "../api";
 import { useEffect, useState } from "react";
+import pokerImage from '../assets/poker-chips.png';
+import playerImage from '../assets/players.png';
 
 function Tables() {
     
@@ -50,6 +52,22 @@ function Tables() {
                   <div>
                     <span className="font-semibold text-green-900">{table.name || `Table #${table.id}`}</span>
                     {/* {table.status && <span className="ml-2 text-xs text-gray-600">({table.status})</span>} */}
+                  </div>
+                  <div>
+                    <img src={playerImage} alt="players" class="w-[30px] h-[30px]"/>
+                    <span className="text-sm text-gray-600">{table.players.length} / 3</span>
+                  </div>
+                  <div>
+                    <img src={pokerImage} alt="poker-chips" class="w-[30px] h-[30px]"/>
+                    <span className="text-sm text-gray-600">Pot: {table.pot}€</span>                  
+                  </div>
+                  <div>
+                    <span className="text-sm text-gray-600">Mise: {table.currentBet}</span>
+                  </div>
+                  <div>
+                      <span className="text-sm text-gray-600">Tour: {table.currentTurn}</span>
+                    <span className="text-sm text-gray-600">Manche: {table.round}</span>
+                    <span className="text-sm text-gray-600">Manche en cours: {table.currentRound}</span>
                   </div>
                   <div className="mt-2 md:mt-0 flex gap-2">
                     <button className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 px-4 rounded-lg text-sm border-2 border-green-900 transition">Rejoindre</button>
