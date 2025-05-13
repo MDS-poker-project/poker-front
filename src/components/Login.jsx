@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { postData } from '../api/index';
-import { useNavigate } from 'react-router-dom';
 
-function Login({setPlayer}) {
+function Login({setLoginState}) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -22,9 +20,8 @@ function Login({setPlayer}) {
                 throw new Error("Le token d'accès est invalide.");
             }
             localStorage.setItem("token", data.access_token);
-            setPlayer(true);
+            setLoginState('player');
             console.log("data", data);
-            navigate("/");
         }
         catch (err) {
             const errorMessage = err.response?.data?.message || err.message || "Une erreur est survenue.";
@@ -61,7 +58,7 @@ function Login({setPlayer}) {
             Se connecter
           </button>
         </form>
-        <a className="mt-4 hover:text-gray-600 hover:cursor-pointer" onClick={() => navigate('/register')}>Pas encore de compte ?</a>
+        <a className="mt-4 hover:text-gray-600 hover:cursor-pointer" onClick={() => setLoginState('register')}>Pas encore de compte ?</a>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { postData } from '../api/index';
 
-function Register() {
+function Register({setLoginState}) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -22,6 +22,7 @@ function Register() {
             throw new Error("Le token d'accès est invalide.");
         }
         localStorage.setItem("token", data.access_token);
+        setLoginState('player');
     }
     catch (err) {
         const errorMessage = err.response?.data?.message || err.message || "Une erreur est survenue.";
@@ -31,7 +32,7 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-green-900 via-green-700 to-green-900">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br">
       <div className="bg-white/90 rounded-xl shadow-2xl p-10 flex flex-col items-center max-w-md w-full">
         <h1 className="text-3xl font-extrabold text-green-800 mb-6 drop-shadow-lg">Créer un compte</h1>
         <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
@@ -59,7 +60,7 @@ function Register() {
             S'inscrire
           </button>
         </form>
-        <a className="mt-4 hover:text-gray-600 hover:cursor-pointer" onClick={() => navigate('/login')}>Déjà un compte ?</a>
+        <a className="mt-4 hover:text-gray-600 hover:cursor-pointer" onClick={() => setLoginState('login')}>Déjà un compte ?</a>
       </div>
     </div>
   );

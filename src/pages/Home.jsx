@@ -10,12 +10,11 @@ function Home() {
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [player, setPlayer] = useState(null);
-  const [register, setRegister] = useState(false);
+  const [loginState, setLoginState] = useState("login");
 
   useEffect(() => {
-    console.log("player", player);
-  }, [player]);
+    console.log("player", loginState);
+  }, [loginState]);
 
   useEffect(() => {
     try {
@@ -36,7 +35,7 @@ function Home() {
     // Vérifie si le joueur est connecté (présence d'un token)
     const token = localStorage.getItem("token");
     if (token) {
-      setPlayer(true);
+      setLoginState('player');
     }
   }, []);
 
@@ -72,12 +71,14 @@ function Home() {
       {/* Partie droite : login ou infos joueur */}
       <div className="w-full max-w-md flex flex-col justify-center items-center">
         <div className="p-8 w-full flex flex-col items-center">
-          {!player ? (
+          {loginState === "login" ? (
             <Login 
-              setPlayer={setPlayer}
+              setLoginState={setLoginState}
             />
-          ) : register ? (
-            <Register />
+          ) : loginState === "register" ? (
+            <Register 
+              setLoginState={setLoginState}
+            />
           ) : (
             <Player />
           )}
