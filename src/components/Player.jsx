@@ -14,7 +14,8 @@ function Player() {
         setLoading(false);
       })
       .catch((err) => {
-        setError("Erreur lors du chargement des informations du joueur.");
+        setError("Erreur lors du chargement des informations du joueur.", err);
+        setPlayer('login');
         setLoading(false);
       });
   }, []);

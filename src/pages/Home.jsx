@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Login from "../components/Login";
 import { fetchData } from "../api";
@@ -6,7 +5,6 @@ import Register from "../components/Register";
 import Player from "../components/Player";
 
 function Home() {
-  const navigate = useNavigate();
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -20,22 +18,22 @@ function Home() {
     try {
       fetchData("/tables")
         .then((res) => {
-          console.log(res);
           setTables(res);
           setLoading(false);
         })
-        .catch(() => {
-          setError("Erreur lors du chargement des tables.");
+        .catch((err) => {
+          // Si erreur d'authentification (token expiré), on repasse en mode login
+          if (err?.response?.status === 401 || err?.response?.status === 403) {
+            localStorage.removeItem('token');
+            setLoginState('login');
+          } else {
+            setError("Erreur lors du chargement des tables.");
+          }
           setLoading(false);
         });
     } catch (err) {
-      setError("Erreur lors du chargement des tables.");
+      setError("Erreur lors du chargement des tables.", err);
       setLoading(false);
-    }
-    // Vérifie si le joueur est connecté (présence d'un token)
-    const token = localStorage.getItem("token");
-    if (token) {
-      setLoginState('player');
     }
   }, []);
 
