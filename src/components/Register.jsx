@@ -54,7 +54,7 @@ function Register() {
           {error && <div className="text-red-600 text-sm text-center">{error}</div>}
           <button
             type="submit"
-            className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-200 text-lg border-2 border-yellow-700 mt-2"
+            className="bg-yellow-500 hover:bg-yellow-600 hover:cursor-pointer text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-200 text-lg border-2 border-yellow-700 mt-2"
           >
             S'inscrire
           </button>

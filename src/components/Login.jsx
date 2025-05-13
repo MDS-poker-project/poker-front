@@ -2,26 +2,28 @@ import React, { useState } from 'react';
 import { postData } from '../api/index';
 import { useNavigate } from 'react-router-dom';
 
-function Login() {
-    const [user, setUser] = useState('');
+function Login({setPlayer}) {
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!user || !password) {
+        if (!username || !password) {
         setError('Veuillez remplir tous les champs.');
         return;
         }
         setError('');
         
         try {
-            const data = await postData("/auth/signIn", { user, password });
+            const data = await postData("/auth/signIn", { username, password });
             if (data.access_token === true) {
                 throw new Error("Le token d'accès est invalide.");
             }
             localStorage.setItem("token", data.access_token);
+            setPlayer(true);
+            console.log("data", data);
             navigate("/");
         }
         catch (err) {
@@ -32,7 +34,7 @@ function Login() {
     };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-green-900 via-green-700 to-green-900">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br">
       <div className="bg-white/90 rounded-xl shadow-2xl px-10 py-5 flex flex-col items-center max-w-md w-full">
         <h1 className="text-3xl font-extrabold text-green-800 mb-6 drop-shadow-lg">Connexion</h1>
         <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
@@ -40,8 +42,8 @@ function Login() {
             type="text"
             placeholder="Identifiant"
             className="px-4 py-3 rounded-lg border-2 border-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-lg"
-            value={user}
-            onChange={e => setUser(e.target.value)}
+            value={username}
+            onChange={e => setUsername(e.target.value)}
           />
           <input
             type="password"
