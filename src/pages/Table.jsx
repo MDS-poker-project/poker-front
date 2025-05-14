@@ -12,6 +12,12 @@ function Table() {
   const [actionAmount, setActionAmount] = useState('');
   const playerId = getTokenPayload()?.sub || getTokenPayload()?.userId;
   const navigate = useNavigate();
+  const [aiMoves, setAiMoves] = useState([]);
+  const [aiMoveIndex, setAiMoveIndex] = useState(0);
+  const [aiMoveAnimating, setAiMoveAnimating] = useState(false);
+  const [aiMoveDisplay, setAiMoveDisplay] = useState(null);
+  const [showEnd, setShowEnd] = useState(false);
+  const [winnerInfo, setWinnerInfo] = useState(null);
 
   // Rejoint la table puis charge les infos
   const joinAndFetch = async () => {
@@ -22,9 +28,7 @@ function Table() {
       await fetchData(`/tables/${id}/join`); // On ignore la réponse, on veut juste rejoindre
       const data = await fetchData(`/tables/${id}`);
       setTable(data);
-      console.log(data);
       const actions = await fetchData(`/tables/${id}/actions`);
-      console.log("actions", actions);
       setPossibleActions(actions);
       setLoading(false);
     } catch (err) {
@@ -42,10 +46,8 @@ function Table() {
   const refreshTable = async () => {
     try {
       const data = await fetchData(`/tables/${id}`);
-      console.log('table', data);
       setTable(data);
       const actions = await fetchData(`/tables/${id}/actions`);
-      console.log(actions);
       setPossibleActions(actions);
     } catch (err) {
       setError("Erreur lors du rafraîchissement de la table.", err);
@@ -62,16 +64,61 @@ function Table() {
         endpoint += `/${actionAmount}`;
       }
       const res = await fetchData(endpoint);
+      if (String(res).includes('Game finished')) {
+        handleFinish(res);
+        return;
+      }
       if (typeof res === 'string') {
         setMessage(res);
         refreshTable();
         return;
       }
-      refreshTable();
+      // Si des coups IA sont présents, on les anime
+      if (res.aiMoves && res.aiMoves.length > 0) {
+        setAiMoves(res.aiMoves);
+        setAiMoveIndex(0);
+        setAiMoveAnimating(true);
+        setAiMoveDisplay(null);
+      } else {
+        refreshTable();
+      }
+      setPossibleActions(res.possibleActions || []);
+      setTable(res.table || null);
     } catch (err) {
       setError("Erreur lors de l'action.", err);
     }
   };
+
+  const handleFinish = async (data) => {
+
+    let winner = data.winner;
+    let pot = data.pot;
+    // Si la table a été reset, on peut chercher le dernier message ou le joueur avec le plus d'argent
+    if (data && data.players && data.players.length > 0) {
+      // Cherche le joueur avec le plus d'argent (ou autre critère selon backend)
+      winner = data.players.reduce((a, b) => (a.money > b.money ? a : b));
+    }
+    setWinnerInfo({
+      username: winner ?? 'Gagnant inconnu',
+      pot: pot || '?'
+    });
+    setShowEnd(true);
+  };
+
+  // Animation des coups IA
+  useEffect(() => {
+    if (aiMoveAnimating && aiMoves.length > 0 && aiMoveIndex < aiMoves.length) {
+      setAiMoveDisplay(aiMoves[aiMoveIndex]);
+      const timeout = setTimeout(() => {
+        setAiMoveIndex(idx => idx + 1);
+      }, 1200);
+      return () => clearTimeout(timeout);
+    } else if (aiMoveAnimating && aiMoveIndex >= aiMoves.length) {
+      setAiMoveAnimating(false);
+      setAiMoveDisplay(null);
+      refreshTable();
+    }
+  }, [aiMoveAnimating, aiMoveIndex, aiMoves]);
 
   const handleLeave = async () => {
     setError('');
@@ -79,10 +126,8 @@ function Table() {
     try {
       const res = await fetchData(`/tables/${id}/leave`);
       navigate('/');
-      if (typeof res === 'string') {
         setMessage(res);
         return;
-      }
     }
     catch (err) {
       setError("Erreur lors du départ de la table.", err);
@@ -121,7 +166,7 @@ function Table() {
           {/* Zone table/pot/river */}
           <div className="flex-1 flex flex-col items-center gap-4">
             {/* Table de poker visuelle */}
-            <div className="relative w-[80%] h-[60vh] md:w-[90%] md:h-[40vh] flex items-center justify-center mb-6">
+            <div className="relative max-w-[1000px] w-[80%] h-[60vh] md:w-[90%] md:h-[40vh] flex items-center justify-center mb-6">
               {/* Table verte ovale responsive avec contour bois */}
               <div className="absolute w-full h-full flex items-center justify-center"
                 style={{
@@ -162,7 +207,7 @@ function Table() {
                         position: 'absolute',
                     };
 
-                    const isCurrent = player.isAI === false;
+                    const isCurrent = player.id === playerId;
                     const isLeft = !isCurrent && idx % 2 === 1;
                     const isRight = !isCurrent && idx % 2 === 0;
 
@@ -188,12 +233,19 @@ function Table() {
                         style={style}
                         >
                         <div className={`px-2 py-1 rounded-lg shadow ${isCurrent ? 'bg-green-200 border-2 border-green-700' : 'bg-white/80 border border-gray-300'}`}>{player.username}</div>
-                        <div className="text-xs">{player.money} $</div>
-                        <div className="text-xs italic">{player.state}</div>
-                        {isCurrent && currentPlayer?.hand?.length ? (
+                        <div className="text-xs text-white">{player.money}&nbsp;$</div>
+                        {/* Affiche la mise courante du joueur */}
+                        {typeof player.bet !== 'undefined' && (
+                          <div className="text-md bg-white rounded-xl p-2 text-black font-semibold">Mise:&nbsp;{player.bet}&nbsp;$</div>
+                        )}
+                        <div className="text-xs italic text-white">{player.state}</div>
+                        {/* Affiche la main de chaque joueur, anonymisée si besoin */}
+                        {player.hand?.length ? (
                             <div className="flex gap-1 mt-1">
-                            {currentPlayer.hand.map((card, i) => (
-                                <span key={i} className="bg-yellow-100 border rounded px-1 py-0.5 text-green-900 font-mono text-xs">{card.rank} {card.suit}</span>
+                            {player.hand.map((card, i) => (
+                                <span key={i} className={`border rounded px-1 py-0.5 font-mono text-xs ${isCurrent ? 'bg-yellow-100 text-green-900' : (card.rank === 'X' ? 'bg-gray-300 text-gray-500' : 'bg-yellow-50 text-green-900')}`}>
+                                    {card.rank} {card.suit}
+                                </span>
                             ))}
                             </div>
                         ) : null}
@@ -206,6 +258,23 @@ function Table() {
           </div>
         </div>
         {message && <div className="mt-4 text-center text-lg text-white font-semibold">{message}</div>}
+        {/* Affichage animation IA */}
+        {aiMoveDisplay && (
+          <div className="fixed left-1/2 top-10 -translate-x-1/2 z-50 bg-black/80 text-white px-6 py-3 rounded-xl shadow-lg text-xl animate-bounce">
+            {(() => {
+              const player = table?.players?.find(p => p.id === aiMoveDisplay.playerId);
+              let actionText = '';
+              switch (aiMoveDisplay.move) {
+                case 'fold': actionText = 'se couche'; break;
+                case 'raise': actionText = `relance à ${aiMoveDisplay.afterBet} $`; break;
+                case 'call': actionText = 'suit'; break;
+                case 'check': actionText = 'check'; break;
+                default: actionText = aiMoveDisplay.move;
+              }
+              return `${player ? player.username : 'IA'} ${actionText ? actionText : "attend la fin"}`;
+            })()}
+          </div>
+        )}
         {/* Actions */}
         <div className="mt-6 flex justify-between items-center gap-2">
           <div className="flex flex-wrap gap-3">
@@ -225,7 +294,7 @@ function Table() {
             {possibleActions.includes('small_blind') && (
               <button
                 onClick={() => handleAction('small_blind')}
-                className="font-bold py-2 px-4 rounded-lg border-2 bg-blue-700 hover:bg-blue-800 text-white border-blue-900 capitalize"
+                className="font-bold py-2 px-4 rounded-lg border-2 bg-blue-700 hover:bg-blue-800 text-white border-blue-900 capitalize hover:cursor-pointer"
               >
                 Petite blinde
               </button>
@@ -233,7 +302,7 @@ function Table() {
             {possibleActions.includes('big_blind') && (
               <button
                 onClick={() => handleAction('big_blind')}
-                className="font-bold py-2 px-4 rounded-lg border-2 bg-purple-700 hover:bg-purple-800 text-white border-purple-900 capitalize"
+                className="font-bold py-2 px-4 rounded-lg border-2 bg-purple-700 hover:bg-purple-800 text-white border-purple-900 capitalize hover:cursor-pointer"
               >
                 Grosse blinde
               </button>
@@ -262,6 +331,19 @@ function Table() {
           </div>
         </div>
       </div>
+      {showEnd && winnerInfo && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80">
+          <div className="bg-white rounded-2xl shadow-2xl p-10 flex flex-col items-center gap-6">
+            <div className="text-4xl font-extrabold text-green-700">Victoire !</div>
+            <div className="text-2xl font-bold text-gray-900">{winnerInfo.username} remporte le pot</div>
+            <div className="text-3xl font-bold text-yellow-600">{winnerInfo.pot} $</div>
+            <div className="flex gap-4 mt-6">
+              <button onClick={handleLeave} className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-xl text-lg">Quitter la table</button>
+              <button onClick={() => { setShowEnd(false); joinAndFetch(); }} className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl text-lg">Recommencer</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
