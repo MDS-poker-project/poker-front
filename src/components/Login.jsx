@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { postData } from '../api/index';
+import moneyImage from '../assets/money1.png';
 
 function Login({setLoginState}) {
     const [username, setUsername] = useState('');
@@ -31,8 +32,7 @@ function Login({setLoginState}) {
     };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br">
-      <div className="bg-white/90 rounded-xl shadow-2xl px-10 py-5 flex flex-col items-center max-w-md w-full">
+      <div className="bg-white/90 rounded-xl shadow-2xl px-10 py-5 flex flex-col items-center p-6 max-w-md w-full">
         <h1 className="text-3xl font-extrabold text-green-800 mb-6 drop-shadow-lg">Connexion</h1>
         <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
           <input
@@ -60,7 +60,7 @@ function Login({setLoginState}) {
         </form>
         <a className="mt-4 hover:text-gray-600 hover:cursor-pointer" onClick={() => setLoginState('register')}>Pas encore de compte ?</a>
       </div>
-    </div>
+      
   );
 }
 

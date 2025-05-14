@@ -32,7 +32,6 @@ function Register({setLoginState}) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br">
       <div className="bg-white/90 rounded-xl shadow-2xl p-10 flex flex-col items-center max-w-md w-full">
         <h1 className="text-3xl font-extrabold text-green-800 mb-6 drop-shadow-lg">Créer un compte</h1>
         <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
@@ -62,7 +61,6 @@ function Register({setLoginState}) {
         </form>
         <a className="mt-4 hover:text-gray-600 hover:cursor-pointer" onClick={() => setLoginState('login')}>Déjà un compte ?</a>
       </div>
-    </div>
   );
 }
 
