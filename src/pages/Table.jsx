@@ -29,6 +29,7 @@ function Table() {
       const data = await fetchData(`/tables/${id}`);
       setTable(data);
       const actions = await fetchData(`/tables/${id}/actions`);
+      console.log('Actions possibles:', actions);
       setPossibleActions(actions);
       setLoading(false);
     } catch (err) {
@@ -64,7 +65,20 @@ function Table() {
         endpoint += `/${actionAmount}`;
       }
       const res = await fetchData(endpoint);
-      if (String(res).includes('Game finished')) {
+      if (typeof res === 'string' && (res.startsWith('Everyone folded,') || res.toLowerCase().includes('game finished'))) {
+        // On parse le nom du gagnant et le pot si possible
+        let winner = 'unknown';
+        let pot = '?';
+        if (res.startsWith('Everyone folded,')) {
+          const match = res.match(/player ([^ ]+) wins (\d+)/);
+          if (match) { winner = match[1]; pot = match[2]; }
+        }
+        setWinnerInfo({ username: winner, pot });
+        setShowEnd(true);
+        return;
+      }
+      if (res?.message && res.message.includes('Game finished')) {
+        setWinnerInfo({ username: res.winner, pot: res.pot });
         handleFinish(res);
         return;
       }
@@ -241,13 +255,52 @@ function Table() {
                         <div className="text-xs italic text-white">{player.state}</div>
                         {/* Affiche la main de chaque joueur, anonymisée si besoin */}
                         {player.hand?.length ? (
-                            <div className="flex gap-1 mt-1">
-                            {player.hand.map((card, i) => (
-                                <span key={i} className={`border rounded px-1 py-0.5 font-mono text-xs ${isCurrent ? 'bg-yellow-100 text-green-900' : (card.rank === 'X' ? 'bg-gray-300 text-gray-500' : 'bg-yellow-50 text-green-900')}`}>
-                                    {card.rank} {card.suit}
+                          <div className="flex gap-1 mt-1">
+                            {player.hand.map((card, i) => {
+                              // Détermine le logo/symbole couleur
+                              let suitSymbol = card.suit;
+                              let suitColor = '#222';
+                              let suitIcon = card.suit;
+                              switch(card.suit) {
+                                case '♥':
+                                case 'hearts':
+                                  suitIcon = '♥'; suitColor = '#e3342f'; break;
+                                case '♦':
+                                case 'diamonds':
+                                  suitIcon = '♦'; suitColor = '#e3342f'; break;
+                                case '♣':
+                                case 'clubs':
+                                  suitIcon = '♣'; suitColor = '#222'; break;
+                                case '♠':
+                                case 'spades':
+                                  suitIcon = '♠'; suitColor = '#222'; break;
+                                default:
+                                  suitIcon = card.suit;
+                              }
+                              return (
+                                <span
+                                  key={i}
+                                  className={`inline-block border-2 rounded-lg px-2 py-1 font-mono text-xs shadow-md relative card-poker ${isCurrent ? 'bg-yellow-100 text-green-900 border-yellow-600' : (card.rank === 'X' ? 'bg-gray-300 text-gray-500 border-gray-400' : 'bg-white text-green-900 border-green-700')}`}
+                                  style={{
+                                    minWidth: 64,
+                                    minHeight: 88,
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontWeight: 'bold',
+                                    fontSize: 16,
+                                    boxShadow: '0 2px 8px #0003',
+                                    position: 'relative',
+                                    letterSpacing: 1,
+                                  }}
+                                >
+                                  <span style={{position:'absolute',left:4,top:2,fontSize:10,opacity:0.7}}>{card.rank}</span>
+                                  <span style={{fontSize:40, color: suitColor}}>{suitIcon}</span>
+                                  <span style={{position:'absolute',right:4,bottom:2,fontSize:10,opacity:0.7}}>{card.rank}</span>
                                 </span>
-                            ))}
-                            </div>
+                              );
+                            })}
+                          </div>
                         ) : null}
                         </div>
                     );
@@ -257,7 +310,6 @@ function Table() {
             </div>
           </div>
         </div>
-        {message && <div className="mt-4 text-center text-lg text-white font-semibold">{message}</div>}
         {/* Affichage animation IA */}
         {aiMoveDisplay && (
           <div className="fixed left-1/2 top-10 -translate-x-1/2 z-50 bg-black/80 text-white px-6 py-3 rounded-xl shadow-lg text-xl animate-bounce">
@@ -289,6 +341,7 @@ function Table() {
               ))
             )}
           </div>
+          {message && <div className="mt-4 text-center text-lg text-white font-semibold">{message}</div>}
           {/* Boutons fixes à droite */}
           <div className="flex gap-2 ml-4">
             {possibleActions.includes('small_blind') && (
@@ -335,11 +388,10 @@ function Table() {
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80">
           <div className="bg-white rounded-2xl shadow-2xl p-10 flex flex-col items-center gap-6">
             <div className="text-4xl font-extrabold text-green-700">Victoire !</div>
-            <div className="text-2xl font-bold text-gray-900">{winnerInfo.username} remporte le pot</div>
-            <div className="text-3xl font-bold text-yellow-600">{winnerInfo.pot} $</div>
+            <div className="text-2xl font-bold text-gray-900">{winnerInfo.username} remporte <span className="text-3xl font-bold text-yellow-600">{winnerInfo.pot} $</span></div>
             <div className="flex gap-4 mt-6">
-              <button onClick={handleLeave} className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-xl text-lg">Quitter la table</button>
-              <button onClick={() => { setShowEnd(false); joinAndFetch(); }} className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl text-lg">Recommencer</button>
+              <button onClick={handleLeave} className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-xl text-lg hover:cursor-pointer">Quitter la table</button>
+              <button onClick={() => { setShowEnd(false); joinAndFetch(); }} className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl text-lg hover:cursor-pointer">Recommencer</button>
             </div>
           </div>
         </div>
