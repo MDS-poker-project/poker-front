@@ -72,6 +72,11 @@ npm run test
 Les tests E2E ont étés rédigés avec `Cypress` sur :
 - Composant Home
 
+#### Pré-requis :
+
+Exécutez d'abord : ```npm install``` dans `poker-front`.
+
+
 ⚠️ Vous devez vous positionner à la racine du projet `poker-tools` pour exécuter les tests :
 
 ```bash
