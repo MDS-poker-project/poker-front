@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Login from './components/Login';
 import Register from './components/Register';
 import Table from './pages/Table';
+import Tables from './components/Tables';
 
 
 function App() {

@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import Login from "../components/Login";
-import { fetchData } from "../api";
 import Register from "../components/Register";
 import Player from "../components/Player";
+import Tables from "../components/Tables";
+import Header from "../components/Header";
+import chipImage from "../assets/poker-chip.png";
+import moneyImage from "../assets/money1.png";
 
 function Home() {
   const [tables, setTables] = useState([]);
@@ -34,49 +37,27 @@ function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-stretch bg-gradient-to-br from-green-900 via-green-700 to-green-900">
-      {/* Liste des tables (2/3 gauche) */}
-      <div className="flex-1 flex flex-col justify-center items-center p-8">
-        <div className="bg-white/90 rounded-xl shadow-2xl p-8 w-full max-w-3xl">
-          <h2 className="text-2xl font-bold text-green-900 mb-6 text-center">Tables de jeu disponibles</h2>
-          {loading ? (
-            <div className="text-gray-600 text-center">Chargement...</div>
-          ) : error ? (
-            <div className="text-red-600 text-center">{error}</div>
-          ) : tables?.length === 0 ? (
-            <div className="text-gray-600 text-center">Aucune table disponible.</div>
-          ) : (
-            <ul className="space-y-3 max-h-[70vh] overflow-y-auto">
-              {tables?.map((table) => (
-                <li key={table.id} className="bg-green-100 border border-green-300 rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between shadow">
-                  <div>
-                    <span className="font-semibold text-green-900">{table.name || `Table #${table.id}`}</span>
-                    {/* {table.status && <span className="ml-2 text-xs text-gray-600">({table.status})</span>} */}
-                  </div>
-                  <div className="mt-2 md:mt-0 flex gap-2">
-                    <button className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 px-4 rounded-lg text-sm border-2 border-green-900 transition">Rejoindre</button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
+    <div className="h-full bg-gradient-to-br from-green-900 via-green-700 to-green-900">
+      <Header />
+      <div className="flex flex-col md:flex-row justify-center items-center">
+        {/* Liste des tables (2/3 gauche) */}
+        <div className="w-4/4 flex justify-center items-center p-5">
+          <Tables />
         </div>
-      </div>
-      {/* Partie droite : login ou infos joueur */}
-      <div className="w-full max-w-md flex flex-col justify-center items-center">
-        <div className="p-8 w-full flex flex-col items-center">
-          {loginState === "login" ? (
-            <Login 
-              setLoginState={setLoginState}
-            />
-          ) : loginState === "register" ? (
-            <Register 
-              setLoginState={setLoginState}
-            />
-          ) : (
-            <Player />
-          )}
+
+        {/* Partie droite : login ou infos joueur */}
+        <div className="w-2/4 flex justify-center items-center p-5">
+          <div className="flex items-center">
+            {loginState === "login" ? (
+              <Login setLoginState={setLoginState} />
+            ) : loginState === "register" ? (
+              <Register setLoginState={setLoginState} />
+            ) : (
+              <Player />
+            )}
+          </div>
         </div>
+        <img src={ chipImage} alt="poker-chip" className="h-25 absolute top-30 right-30 z-10"/>
       </div>
     </div>
   );
