@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import Tables from '../src/components/Tables';
-import { fetchData } from '../src/api';
+import ApiService from '../src/api/ApiService';
 
 jest.mock('../src/api'); // mock pour simuler les fausse données, pas besoin de back pour tester
 
@@ -18,7 +18,7 @@ it('affiche les tables après chargement', async () => {
     },
   ];
 
-  fetchData.mockResolvedValueOnce(fakeTables);
+  ApiService.fetchData.mockResolvedValueOnce(fakeTables);
 
   render(<Tables />);
 
@@ -32,7 +32,7 @@ it('affiche les tables après chargement', async () => {
 });
 
 it('affiche une erreur si l\'API échoue', async () => {
-  fetchData.mockRejectedValueOnce(new Error('API error'));
+  ApiService.fetchData.mockRejectedValueOnce(new Error('API error'));
 
   render(<Tables />);
 
@@ -42,7 +42,7 @@ it('affiche une erreur si l\'API échoue', async () => {
 });
 
 it('affiche un message si aucune table n\'est disponible', async () => {
-  fetchData.mockResolvedValueOnce([]);
+  ApiService.fetchData.mockResolvedValueOnce([]);
 
   render(<Tables />);
 

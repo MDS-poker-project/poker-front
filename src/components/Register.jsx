@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { postData } from '../api/index';
+import ApiService from '../api/ApiService';
 
 function Register({setLoginState}) {
   const [username, setUsername] = useState('');
@@ -15,7 +15,7 @@ function Register({setLoginState}) {
     setError('');
     
     try {
-        const data = await postData("/auth/signUp", { username, password });
+        const data = await ApiService.postData("/auth/signUp", { username, password });
         if (data.access_token === true) {
             throw new Error("Le token d'accès est invalide.");
         }

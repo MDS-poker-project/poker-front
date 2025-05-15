@@ -1,4 +1,4 @@
-import { fetchData } from "../api";
+import ApiService from "../api/ApiService";
 import { useEffect, useState } from "react";
 import pokerImage from '../assets/poker-chips.png';
 import playerImage from '../assets/players.png';
@@ -15,7 +15,7 @@ function Tables() {
 
     useEffect(() => {
     try {
-      fetchData("/tables")
+      ApiService.fetchData("/tables")
         .then((res) => {
           setTables(res);
           setLoading(false);

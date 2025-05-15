@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchData, getTokenPayload } from '../api';
+import { getTokenPayload } from '../api';
+import ApiService from '../api/ApiService';
 
 function Table() {
   const { id } = useParams();
@@ -25,10 +26,10 @@ function Table() {
     setError('');
     setMessage('');
     try {
-      await fetchData(`/tables/${id}/join`); // On ignore la réponse, on veut juste rejoindre
-      const data = await fetchData(`/tables/${id}`);
+      await ApiService.fetchData(`/tables/${id}/join`); // On ignore la réponse, on veut juste rejoindre
+      const data = await ApiService.fetchData(`/tables/${id}`);
       setTable(data);
-      const actions = await fetchData(`/tables/${id}/actions`);
+      const actions = await ApiService.fetchData(`/tables/${id}/actions`);
       setPossibleActions(actions);
       setLoading(false);
     } catch (err) {
@@ -45,9 +46,9 @@ function Table() {
   // Rafraîchit la table et les actions
   const refreshTable = async () => {
     try {
-      const data = await fetchData(`/tables/${id}`);
+      const data = await ApiService.fetchData(`/tables/${id}`);
       setTable(data);
-      const actions = await fetchData(`/tables/${id}/actions`);
+      const actions = await ApiService.fetchData(`/tables/${id}/actions`);
       setPossibleActions(actions);
     } catch (err) {
       setError("Erreur lors du rafraîchissement de la table.", err);
@@ -63,7 +64,7 @@ function Table() {
       if (action === 'raise' && actionAmount) {
         endpoint += `/${actionAmount}`;
       }
-      const res = await fetchData(endpoint);
+      const res = await ApiService.fetchData(endpoint);
       if (typeof res === 'string' && (res.startsWith('Everyone folded,') || res.toLowerCase().includes('game finished'))) {
         // On parse le nom du gagnant et le pot si possible
         let winner = 'unknown';
@@ -137,10 +138,10 @@ function Table() {
     setError('');
     setMessage('');
     try {
-      const res = await fetchData(`/tables/${id}/leave`);
+      const res = await ApiService.fetchData(`/tables/${id}/leave`);
       navigate('/');
-        setMessage(res);
-        return;
+      setMessage(typeof res === 'string' ? res : 'Vous avez quitté la table.');
+      return;
     }
     catch (err) {
       setError("Erreur lors du départ de la table.", err);
@@ -154,9 +155,6 @@ function Table() {
     return <div className="flex justify-center items-center min-h-screen text-red-700">{error}</div>;
   }
   if (!table) return null;
-
-  // Trouve le joueur courant
-  const currentPlayer = table.players?.find(p => p.id === playerId);
 
   return (
     <div className="min-h-screen flex flex-col items-center p-6" style={{

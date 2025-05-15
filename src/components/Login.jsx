@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { postData } from '../api/index';
-import moneyImage from '../assets/money1.png';
+import ApiService from '../api/ApiService';
 
 function Login({setLoginState}) {
     const [username, setUsername] = useState('');
@@ -16,7 +15,7 @@ function Login({setLoginState}) {
         setError('');
         
         try {
-            const data = await postData("/auth/signIn", { username, password });
+            const data = await ApiService.postData("/auth/signIn", { username, password });
             if (data.access_token === true) {
                 throw new Error("Le token d'accès est invalide.");
             }

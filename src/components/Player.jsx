@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchData } from '../api/index';
+import ApiService from '../api/ApiService';
 
 function Player() {
   const [player, setPlayer] = useState(null);
@@ -7,7 +7,7 @@ function Player() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchData('/player')
+    ApiService.fetchData('/player')
       .then((data) => {
         setPlayer(data);
         setLoading(false);
