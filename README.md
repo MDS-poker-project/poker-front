@@ -1,13 +1,66 @@
-# React + Vite
+# Front Poker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Sommaire
+- [Description](#description)
+- [Technologies utilisées](#technologies-utilisées)
+- [Installation et démarrage](#installation-et-démarrage)
+- [Tests](#tests)
+- [Auteurs](#auteurs)
 
-Currently, two official plugins are available:
+## Description
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Ce projet est un front React développée en duo dans le cadre de notre formation chez MyDigitalSchool avec comme objectif de se lier au `Poker API`. Le front permet de jouer graphiquement des parties de poker en consommant l'API. Cette appli gère des joueurs et des mises, tout en respectant les règles du texas holdem. Ce projet s'inscrit dans le cadre du cours de Application web.
 
-## Expanding the ESLint configuration
+## Technologies utilisées
+Ce projet utilise les technologies suivantes :
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# poker-front
+- **React**
+- **Jest**
+- **Cypress**
+
+## Installation et démarrage
+
+### ⚠️⚠️ Ce projet fonctionne de paire avec l'API. Il est recommandé d'installer ce projet en conteneur via le repo : 
+
+```https://github.com/MDS-poker-project/poker-tools```
+
+
+### 1. Prérequis
+Avant l'installation, assurez-vous d'avoir les éléments suivants :
+- Node.js
+- npm
+
+### 2. Clonez le projet :
+
+```bash
+$ git clone https://github.com/MDS-poker-project/poker-front.git
+```
+
+### 3. Installez les dépendances
+```bash
+$ npm install
+```
+
+### 4. Lancer l'application
+```bash
+$ npm run dev
+```
+
+## Tests
+
+Une partie de ce projet est couvert par des tests :
+
+```bash
+npm run test
+```
+
+### Tests unitaire
+
+- Composant Login
+- Composant Listes
+
+### Tests E2E
+
+## Auteurs
+- Ibragimova Maria
+- Boutrois Benjamin
