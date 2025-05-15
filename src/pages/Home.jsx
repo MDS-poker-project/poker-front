@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Login from "../components/Login";
 import Register from "../components/Register";
@@ -9,15 +8,33 @@ import chipImage from "../assets/poker-chip.png";
 import moneyImage from "../assets/money1.png";
 
 function Home() {
-  const navigate = useNavigate();
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [loginState, setLoginState] = useState("login");
 
   useEffect(() => {
-    console.log("player", loginState);
-  }, [loginState]);
+    try {
+      fetchData("/tables")
+        .then((res) => {
+          setTables(res);
+          setLoading(false);
+        })
+        .catch((err) => {
+          // Si erreur d'authentification (token expiré), on repasse en mode login
+          if (err?.response?.status === 401 || err?.response?.status === 403) {
+            localStorage.removeItem('token');
+            setLoginState('login');
+          } else {
+            setError("Erreur lors du chargement des tables.");
+          }
+          setLoading(false);
+        });
+    } catch (err) {
+      setError("Erreur lors du chargement des tables.", err);
+      setLoading(false);
+    }
+  }, []);
 
   return (
     <div className="h-full bg-gradient-to-br from-green-900 via-green-700 to-green-900">
