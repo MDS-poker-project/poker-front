@@ -29,7 +29,6 @@ function Table() {
       const data = await fetchData(`/tables/${id}`);
       setTable(data);
       const actions = await fetchData(`/tables/${id}/actions`);
-      console.log('Actions possibles:', actions);
       setPossibleActions(actions);
       setLoading(false);
     } catch (err) {

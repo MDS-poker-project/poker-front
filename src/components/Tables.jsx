@@ -14,11 +14,9 @@ function Tables() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        console.log(loading, error, tables);
     try {
       fetchData("/tables")
         .then((res) => {
-          console.log(res);
           setTables(res);
           setLoading(false);
         })

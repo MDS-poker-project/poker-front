@@ -22,7 +22,6 @@ function Login({setLoginState}) {
             }
             localStorage.setItem("token", data.access_token);
             setLoginState('player');
-            console.log("data", data);
         }
         catch (err) {
             const errorMessage = err.response?.data?.message || err.message || "Une erreur est survenue.";

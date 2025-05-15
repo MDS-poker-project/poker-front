@@ -10,7 +10,6 @@ function Player() {
     fetchData('/player')
       .then((data) => {
         setPlayer(data);
-        console.log('data', data);
         setLoading(false);
       })
       .catch((err) => {
