@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import pokerImage from '../assets/poker-chips.png';
 import playerImage from '../assets/players.png';
 import moneyImage from '../assets/money1.png';
+import { useNavigate } from "react-router-dom";
 
 function Tables() {
     
@@ -10,6 +11,7 @@ function Tables() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [loginState, setLoginState] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         console.log(loading, error, tables);
@@ -34,6 +36,15 @@ function Tables() {
       setLoginState('player');
     }
   }, []);
+
+  const handleTableNavigate = (tableId) => {
+    if (localStorage.getItem("token")) {
+      navigate(`/tables/${tableId}`);
+    }
+    else {
+      alert("Veuillez vous connecter pour rejoindre une table.");
+    }
+  }
   
   return (
     <div className="flex-1 flex flex-col justify-center items-center z-20">
@@ -74,7 +85,7 @@ function Tables() {
                       <span className="text-sm text-gray-600">Manche en cours: {table.currentRound}</span>
                   </div>
                   <div className="mt-2 md:mt-0 flex gap-2">
-                    <button className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 px-4 rounded-lg text-sm border-2 transition cursor-pointer">Rejoindre</button>
+                    <button className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 px-4 rounded-lg text-sm border-2 transition cursor-pointer" onClick={() => handleTableNavigate(table.id)}>Rejoindre</button>
                   </div>
                 </li>
               ))}
