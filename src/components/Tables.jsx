@@ -56,15 +56,15 @@ function Tables() {
                   </div>
                  <div className="Logos flex justify-evenly gap-5">
                    <div>
-                     <img src={playerImage} alt="players" class="w-[30px] h-[30px]"/>
+                     <img src={playerImage} alt="players" className="w-[30px] h-[30px]"/>
                      <span className="text-sm text-gray-600">{table.players.length} / 3</span>
                    </div>
                    <div>
-                     <img src={moneyImage} alt="money" class="w-[30px] h-[30px]"/>
+                     <img src={moneyImage} alt="money" className="w-[30px] h-[30px]"/>
                      <span className="text-sm text-gray-600">Pot: {table.pot}€</span>                  
                    </div>
                    <div>
-                      <img src={pokerImage} alt="poker-chips" class="w-[30px] h-[30px]"/>
+                      <img src={pokerImage} alt="poker-chips" className="w-[30px] h-[30px]"/>
                      <span className="text-sm text-gray-600">Mise: {table.currentBet}</span>
                    </div>
                  </div>
