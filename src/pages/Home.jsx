@@ -57,7 +57,7 @@ function Home() {
             )}
           </div>
         </div>
-        <img src={ chipImage} alt="poker-chip" className="h-25 absolute top-30 right-30 z-10"/>
+        <img src={ chipImage} alt="poker-chip" className="h-22 absolute top-30 right-20 z-10"/>
       </div>
     </div>
   );
