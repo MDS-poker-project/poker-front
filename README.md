@@ -20,7 +20,7 @@ Ce projet utilise les technologies suivantes :
 
 ## Installation et démarrage
 
-### ⚠️⚠️ Ce projet fonctionne de paire avec l'API. Il est recommandé d'installer ce projet en conteneur via le repo : 
+### ⚠️⚠️ Ce projet fonctionne de paire avec l'API. Il est recommandé d'installer ce projet avec docker via le repo : 
 
 ```https://github.com/MDS-poker-project/poker-tools```
 
@@ -50,16 +50,33 @@ $ npm run dev
 
 Une partie de ce projet est couvert par des tests :
 
+### Tests unitaire
+
+Les tests unitaires ont étés rédigés avec `Jest` sur :
+- Composant Login
+- Composant Listes
+
+⚠️ Vous devez au préalable vous positionner dans le dossier `poker-front`
+```bash
+cd poker-front
+```
+
+Puis exécuter les tests :
+
 ```bash
 npm run test
 ```
 
-### Tests unitaire
-
-- Composant Login
-- Composant Listes
-
 ### Tests E2E
+
+Les tests E2E ont étés rédigés avec `Cypress` sur :
+- Composant Home
+
+⚠️ Vous devez vous positionner à la racine du projet `poker-tools` pour exécuter les tests :
+
+```bash
+docker-compose -f docker-compose.cypress.yml up --build 
+```
 
 ## Auteurs
 - Ibragimova Maria

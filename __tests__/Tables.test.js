@@ -1,8 +1,15 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import Tables from '../src/components/Tables';
 import ApiService from '../src/api/ApiService';
 
-jest.mock('../src/api'); // mock pour simuler les fausse données, pas besoin de back pour tester
+jest.mock('../src/api/ApiService', () => ({
+  __esModule: true,
+  default: {
+    fetchData: jest.fn(),
+    postData: jest.fn(),
+  },
+}));
 
 it('affiche les tables après chargement', async () => {
   const fakeTables = [
@@ -20,7 +27,12 @@ it('affiche les tables après chargement', async () => {
 
   ApiService.fetchData.mockResolvedValueOnce(fakeTables);
 
-  render(<Tables />);
+  // Dans MemoryRouter pour éviter les erreurs avec useNavigate
+  render(
+    <MemoryRouter>
+      <Tables />
+    </MemoryRouter>
+  );
 
   expect(screen.getByText(/chargement/i)).toBeInTheDocument();
 
@@ -34,7 +46,12 @@ it('affiche les tables après chargement', async () => {
 it('affiche une erreur si l\'API échoue', async () => {
   ApiService.fetchData.mockRejectedValueOnce(new Error('API error'));
 
-  render(<Tables />);
+  // Dans MemoryRouter pour éviter les erreurs avec useNavigate
+  render(
+    <MemoryRouter>
+      <Tables />
+    </MemoryRouter>
+  );
 
   await waitFor(() => {
     expect(screen.getByText(/erreur lors du chargement des tables/i)).toBeInTheDocument();
@@ -44,7 +61,12 @@ it('affiche une erreur si l\'API échoue', async () => {
 it('affiche un message si aucune table n\'est disponible', async () => {
   ApiService.fetchData.mockResolvedValueOnce([]);
 
-  render(<Tables />);
+  // Dans MemoryRouter pour éviter les erreurs avec useNavigate
+  render(
+    <MemoryRouter>
+      <Tables />
+    </MemoryRouter>
+  );
 
   await waitFor(() => {
     expect(screen.getByText(/aucune table disponible/i)).toBeInTheDocument();

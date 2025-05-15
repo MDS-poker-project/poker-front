@@ -1,11 +1,13 @@
 import Login from '../components/Login';
-import { postData } from '../api/index';
+import ApiService from '../api/ApiService';
 import { render, fireEvent, waitFor } from '@testing-library/react';
 
 // Mock de la fonction postData pour éviter les appels réels à l'API
-jest.mock('../api/index', () => ({
-    ...jest.requireActual('../api/index'),
-    postData: jest.fn(),
+jest.mock('../api/ApiService', () => ({
+    __esModule: true,
+    default: {
+        postData: jest.fn(),
+    },
 }));
 
 // Le composant s'affiche correctement
@@ -22,7 +24,6 @@ it('renders the login form', () => {
     expect(getByText('Se connecter')).toBeInTheDocument();
 });
 
-
 // Le formulaire affiche un message d'erreur si les champs sont vides
 it('shows an error message when the form is submitted with empty fields', async () => {
     const { getByText } = render(<Login setLoginState={jest.fn()} />);
@@ -38,7 +39,7 @@ it('hides the form when the credentials are correct', async () => {
     const { getByPlaceholderText, getByText } = render(<Login setLoginState={mockSetLoginState} />);
 
     // Simule une réponse réussie de l'API
-    postData.mockResolvedValueOnce({ access_token: 'mockToken' });
+    ApiService.postData.mockResolvedValueOnce({ access_token: 'mockToken' });
 
     fireEvent.change(getByPlaceholderText('Identifiant'), { target: { value: 'test' } });
     fireEvent.change(getByPlaceholderText('Mot de passe'), { target: { value: 'mdp' } });
@@ -47,6 +48,6 @@ it('hides the form when the credentials are correct', async () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-        expect(localStorage.getItem('token')).toBe('mockToken');
+        expect(localStorage.getItem('access_token')).toBe('mockToken');
     });
 });

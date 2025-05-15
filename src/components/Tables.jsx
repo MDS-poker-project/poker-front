@@ -1,8 +1,5 @@
 import ApiService from "../api/ApiService";
 import { useEffect, useState } from "react";
-import pokerImage from '../assets/poker-chips.png';
-import playerImage from '../assets/players.png';
-import moneyImage from '../assets/money1.png';
 import { useNavigate } from "react-router-dom";
 
 function Tables() {
@@ -65,15 +62,15 @@ function Tables() {
                   </div>
                  <div className="Logos flex justify-evenly gap-5">
                    <div>
-                     <img src={playerImage} alt="players" className="w-[30px] h-[30px]"/>
+                     <img src={'/images/players.png'} alt="players" className="w-[30px] h-[30px]"/>
                      <span className="text-sm text-gray-600">{table.players.length} / 3</span>
                    </div>
                    <div>
-                     <img src={moneyImage} alt="money" className="w-[30px] h-[30px]"/>
+                     <img src={'/images/money1.png'} alt="money" className="w-[30px] h-[30px]"/>
                      <span className="text-sm text-gray-600">Pot: {table.pot}€</span>                  
                    </div>
                    <div>
-                      <img src={pokerImage} alt="poker-chips" className="w-[30px] h-[30px]"/>
+                      <img src={'/images/poker-chips.png'} alt="poker-chips" className="w-[30px] h-[30px]"/>
                      <span className="text-sm text-gray-600">Mise: {table.currentBet}</span>
                    </div>
                  </div>

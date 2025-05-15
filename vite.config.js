@@ -14,6 +14,8 @@ export default defineConfig(({ mode }) => {
       return acc;
     }, {});
 
+  const origin = env.VITE_ORIGIN || 'http://localhost:5173'
+
   return {
     plugins: [
       react(),
@@ -26,6 +28,14 @@ export default defineConfig(({ mode }) => {
         interval: 100,
       },
       host: '0.0.0.0',
-    },
+      port: parseInt(env.VITE_PORT || '5173', 10),
+      strictPort: true,
+      cors: true,
+      origin: origin,
+
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+      }
+    }
   };
 });

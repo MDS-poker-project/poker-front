@@ -19,7 +19,7 @@ function Login({setLoginState}) {
             if (data.access_token === true) {
                 throw new Error("Le token d'accès est invalide.");
             }
-            localStorage.setItem("token", data.access_token);
+            localStorage.setItem("access_token", data.access_token);
             setLoginState('player');
         }
         catch (err) {

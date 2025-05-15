@@ -4,7 +4,6 @@ import Register from "../components/Register";
 import Player from "../components/Player";
 import Tables from "../components/Tables";
 import Header from "../components/Header";
-import chipImage from "../assets/poker-chip.png";
 
 function Home() {
   const [loginState, setLoginState] = useState("login");
@@ -30,7 +29,7 @@ function Home() {
             )}
           </div>
         </div>
-        <img src={ chipImage} alt="poker-chip" className="h-22 absolute top-30 right-20 z-10"/>
+        <img src={'/images/poker-chip.png'} alt="poker-chip" className="h-22 absolute top-30 right-20 z-10"/>
       </div>
     </div>
   );
